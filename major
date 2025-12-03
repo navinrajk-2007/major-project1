@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Simple E-commerce Website</title>
+
+<style>
+body { font-family: Arial; background:#f2f2f2; margin:0; padding:0; }
+.container { width:90%; max-width:400px; margin:20px auto; background:white; padding:20px; border-radius:10px; }
+button, input { width:100%; padding:10px; margin-top:10px; border:none; border-radius:5px; }
+button { background:#0077ff; color:white; }
+.hide { display:none; }
+.product { background:#fff; padding:10px; border-radius:5px; margin-top:10px; border:1px solid #ddd; }
+nav { background:#0077ff; padding:10px; color:white; text-align:center; font-size:20px; }
+a { color:#0077ff; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<nav>E-Commerce Website</nav>
+
+<!-- USER LOGIN -->
+<div id="loginPage" class="container">
+    <h2>Login</h2>
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button onclick="loginUser()">Login</button>
+    <p>New User? <a onclick="showPage('registerPage')">Register</a></p>
+    <p>Admin? <a onclick="showPage('adminLogin')">Admin Login</a></p>
+</div>
+
+<!-- USER REGISTER -->
+<div id="registerPage" class="container hide">
+    <h2>Register</h2>
+    <input id="regEmail" type="email" placeholder="Email">
+    <input id="regPass" type="password" placeholder="Password">
+    <button onclick="registerUser()">Register</button>
+    <p><a onclick="showPage('loginPage')">Back to Login</a></p>
+</div>
+
+<!-- USER DASHBOARD -->
+<div id="userDashboard" class="container hide">
+    <h2>Products</h2>
+
+    <div class="product">
+        <h3>Product 1</h3>
+        <p>₹500</p>
+        <button onclick="addToCart('Product 1',500)">Add to Cart</button>
+    </div>
+
+    <div class="product">
+        <h3>Product 2</h3>
+        <p>₹800</p>
+        <button onclick="addToCart('Product 2',800)">Add to Cart</button>
+    </div>
+
+    <button onclick="showPage('cartPage')">View Cart</button>
+    <button onclick="showPage('myOrders')">My Orders</button>
+    <button onclick="showPage('loginPage')">Logout</button>
+</div>
+
+<!-- CART PAGE -->
+<div id="cartPage" class="container hide">
+    <h2>Your Cart</h2>
+    <ul id="cartList"></ul>
+    <button onclick="showPage('paymentPage')">Proceed to Payment</button>
+    <button onclick="showPage('userDashboard')">Back</button>
+</div>
+
+<!-- PAYMENT PAGE -->
+<div id="paymentPage" class="container hide">
+    <h2>Payment</h2>
+    <p>Cash on Delivery Only</p>
+    <button onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- ORDER SUCCESS -->
+<div id="orderSuccess" class="container hide">
+    <h2>Order Placed Successfully 🎉</h2>
+    <button onclick="showPage('userDashboard')">Back to Dashboard</button>
+</div>
+
+<!-- MY ORDERS -->
+<div id="myOrders" class="container hide">
+    <h2>My Orders</h2>
+    <p id="orderHistory">No orders yet.</p>
+    <button onclick="showPage('userDashboard')">Back</button>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLogin" class="container hide">
+    <h2>Admin Login</h2>
+    <input type="email" id="adminEmail" placeholder="Email">
+    <input type="password" id="adminPass" placeholder="Password">
+    <button onclick="showPage('adminDashboard')">Login</button>
+    <p><a onclick="showPage('loginPage')">Back</a></p>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" class="container hide">
+    <h2>Admin Dashboard</h2>
+    <button onclick="showPage('addProduct')">Add Product</button>
+    <button onclick="showPage('viewCustomers')">View Customers</button>
+    <button onclick="showPage('viewOrders')">View Orders</button>
+    <button onclick="showPage('adminLogin')">Logout</button>
+</div>
+
+<!-- ADD PRODUCT -->
+<div id="addProduct" class="container hide">
+    <h2>Add Product</h2>
+    <input type="text" placeholder="Product Name">
+    <input type="number" placeholder="Price">
+    <button>Add Product</button>
+    <button onclick="showPage('adminDashboard')">Back</button>
+</div>
+
+<!-- VIEW CUSTOMERS -->
+<div id="viewCustomers" class="container hide">
+    <h2>Customers</h2>
+    <p id="customerData">User list appears here.</p>
+    <button onclick="showPage('adminDashboard')">Back</button>
+</div>
+
+<!-- VIEW ORDERS -->
+<div id="viewOrders" class="container hide">
+    <h2>Orders</h2>
+    <p id="adminOrders">Orders will appear here.</p>
+    <button onclick="showPage('adminDashboard')">Back</button>
+</div>
+
+<script>
+// Switch page function
+function showPage(id) {
+    document.querySelectorAll('.container').forEach(div => div.classList.add('hide'));
+    document.getElementById(id).classList.remove('hide');
+}
+
+// Register
+function registerUser() {
+    let email = document.getElementById("regEmail").value;
+    let pass = document.getElementById("regPass").value;
+
+    localStorage.setItem("user", JSON.stringify({email, pass}));
+    alert("Registration successful!");
+    showPage('loginPage');
+}
+
+// Login
+function loginUser() {
+    let email = document.getElementById("loginEmail").value;
+    let pass  = document.getElementById("loginPass").value;
+    let saved = JSON.parse(localStorage.getItem("user"));
+
+    if (saved && email === saved.email && pass === saved.pass) {
+        showPage('userDashboard');
+    } else {
+        alert("Invalid Login!");
+    }
+}
+
+// Cart functions
+function addToCart(name, price) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push({name, price});
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart!");
+}
+
+function loadCart() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let list = document.getElementById("cartList");
+    list.innerHTML = "";
+
+    cart.forEach(item => {
+        let li = document.createElement("li");
+        li.textContent = item.name + " - ₹" + item.price;
+        list.appendChild(li);
+    });
+}
+
+setInterval(loadCart, 500);
+
+// Place Order
+function placeOrder() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    localStorage.setItem("orders", JSON.stringify(cart));
+    localStorage.removeItem("cart");
+
+    document.getElementById("orderHistory").textContent = "Your last order: " + cart.length + " items";
+
+    showPage("orderSuccess");
+}
+</script>
+
+</body>
+</html>
